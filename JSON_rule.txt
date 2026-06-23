@@ -1,0 +1,306 @@
+CAD JSON Specification v0.3
+ 
+ 
+═══════════════════════════════════════
+ SOLID SHAPES
+═══════════════════════════════════════
+ 
+plate:
+{
+    "type": "plate",
+    "length": number,           // X direction
+    "width": number,            // Y direction
+    "thickness": number,        // Z direction
+    "center": boolean,          // default: true
+    "position": [x, y, z],     // default: [0, 0, 0]
+    "rotation": [rx, ry, rz]   // default: [0, 0, 0], degrees
+}
+ 
+cylinder:
+{
+    "type": "cylinder",
+    "radius": number,
+    "height": number,
+    "center": boolean,          // default: true
+    "fn": number,               // default: 100
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+ 
+hex_bolt:
+{
+    "type": "hex_bolt",
+    "diameter": number,         // nominal M-size (3/4/5/6/8/10/12/16/20)
+    "length": number,           // shaft length
+    "across_flats": number,     // optional: overrides ISO default
+    "head_height": number,      // optional: overrides ISO default
+    "fn": number,               // default: 100
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+// Head sits below z=0. Shaft extends upward from z=0.
+ 
+hex_nut:
+{
+    "type": "hex_nut",
+    "diameter": number,
+    "across_flats": number,     // optional
+    "nut_height": number,       // optional
+    "fn": number,               // default: 100
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+ 
+washer:
+{
+    "type": "washer",
+    "diameter": number,
+    "outer_diameter": number,   // optional
+    "thickness": number,        // optional
+    "fn": number,               // default: 100
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+ 
+chamfer_box:
+{
+    "type": "chamfer_box",
+    "length": number,
+    "width": number,
+    "thickness": number,
+    "chamfer_size": number,     // chamfer size in mm
+    "center": boolean,          // default: true
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+ 
+fillet_box:
+{
+    "type": "fillet_box",
+    "length": number,
+    "width": number,
+    "thickness": number,
+    "fillet_r": number,         // fillet radius in mm
+    "center": boolean,          // default: true
+    "fn": number,               // default: 32
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+ 
+ 
+═══════════════════════════════════════
+ HOLE SHAPES (always used as cut targets inside difference)
+═══════════════════════════════════════
+ 
+through_hole:
+{
+    "type": "through_hole",
+    "diameter": number,                  // nominal M-size
+    "depth": number,                     // plate thickness
+    "fit": "close" | "medium" | "free", // default: "medium"
+    "fn": number,                        // default: 100
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+// Drilled slightly larger than bolt diameter per ISO 273.
+// EPSILON applied automatically for z-fighting prevention.
+ 
+countersunk_hole:
+{
+    "type": "countersunk_hole",
+    "diameter": number,
+    "depth": number,
+    "cs_diameter": number,      // optional: countersink diameter
+    "cs_depth": number,         // optional: countersink depth
+    "fn": number,               // default: 100
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+// Cone opens upward so bolt head sits flush with top surface.
+// EPSILON applied automatically.
+ 
+slot_hole:
+{
+    "type": "slot_hole",
+    "diameter": number,
+    "slot_length": number,      // total length (must be > diameter)
+    "depth": number,
+    "direction": "x" | "y",    // default: "x"
+    "fn": number,               // default: 100
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+// Elongated hole for positional adjustment.
+// EPSILON applied automatically.
+ 
+hex_nut_trap:
+{
+    "type": "hex_nut_trap",
+    "diameter": number,
+    "plate_thickness": number,
+    "across_flats": number,          // optional
+    "nut_height": number,            // optional
+    "trap_side": "bottom" | "top",  // default: "bottom"
+    "fn": number,                    // default: 100
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+// Hexagonal pocket for nut press-fit + bolt through-hole in one operation.
+// Used in 3D-printed parts where threads cannot be printed.
+// EPSILON applied automatically.
+ 
+ 
+═══════════════════════════════════════
+ OPERATIONS
+═══════════════════════════════════════
+ 
+union:
+{
+    "operation": "union",
+    "shapes": [...]
+}
+ 
+difference:
+{
+    "operation": "difference",
+    "shapes": [base, cut1, cut2, ...]   // first shape is base; rest are subtracted
+}
+ 
+intersection:
+{
+    "operation": "intersection",
+    "shapes": [...]
+}
+ 
+ 
+═══════════════════════════════════════
+ RULES
+═══════════════════════════════════════
+ 
+1. General Rules
+- Use millimeters for all dimensions.
+- Output JSON only. Do not include any explanation or comments.
+- Every command must have either "type" (shape) or "operation" (boolean).
+- Use "difference" for holes. Use "union" for combining solid parts.
+- "position" is [x, y, z]. "rotation" is [rx, ry, rz] in degrees.
+- Optional fields may be omitted.
+- Default for "center": true.
+- Default for "position": [0, 0, 0].
+- Default for "rotation": [0, 0, 0].
+- Transform order: create shape at local origin -> apply rotation -> apply position.
+- Use lowercase true/false in JSON.
+ 
+2. Coordinate System
+- X: length direction.
+- Y: width direction.
+- Z: thickness / vertical / height direction.
+- Width is always along +Y.
+- For center=false, the origin corner is at [0, 0, 0].
+- Horizontal plate extends in +X direction.
+- Vertical plate extends in +Z direction.
+ 
+3. Plate Rules
+- length  -> X direction
+- width   -> Y direction
+- thickness -> Z direction
+ 
+4. Hole Rules
+- Hole position is measured from the origin corner of the plate (center=false).
+- through_hole, countersunk_hole, slot_hole, and hex_nut_trap must always be
+  used as cut targets inside "difference".
+- EPSILON (0.01 mm) for z-fighting prevention is applied automatically.
+  Do not add extra offsets in JSON.
+- Horizontal plate holes: position = [x_from_corner, y_from_corner, 0]
+- Vertical plate holes: rotation [0, -90, 0], position = [0, y_from_corner, z_from_corner]
+ 
+5. ISO Standard Auto-Apply Rules
+- hex_bolt, hex_nut, washer, through_hole, countersunk_hole, slot_hole, hex_nut_trap
+  automatically apply ISO standard dimensions when only "diameter" is specified.
+- Supported sizes: M3, M4, M5, M6, M8, M10, M12, M16, M20.
+- Non-standard dimensions can be set via optional parameters.
+ 
+6. 3D Printing Rules
+- Do not generate threads. FDM printers cannot reliably print threads.
+- Bolts and nuts are purchased separately and assembled after printing.
+- Use hex_nut_trap to fix a nut inside a printed part.
+- Use countersunk_hole to recess a bolt head flush with the surface.
+- Use slot_hole when positional adjustment is needed.
+ 
+7. L-Bracket Rules
+- L-bracket is viewed from the XZ plane.
+- Both plates share the same length, width, and thickness unless specified.
+- Vertical plate is created by rotating a plate [0, -90, 0] around the Y axis.
+- The shared inside corner is at [0, 0, 0].
+ 
+8. Symmetry Rules
+- For L-brackets, default symmetry is line symmetry about y = width/2.
+- Line symmetry about y = width/2: y_new = width - y_old (x and z unchanged).
+ 
+ 
+═══════════════════════════════════════
+ EXAMPLES
+═══════════════════════════════════════
+ 
+[Example 1] L-bracket with through holes
+{
+  "operation": "difference",
+  "shapes": [
+    {
+      "operation": "union",
+      "shapes": [
+        {
+          "type": "plate",
+          "length": 60, "width": 20, "thickness": 5,
+          "center": false, "position": [0, 0, 0]
+        },
+        {
+          "type": "plate",
+          "length": 60, "width": 20, "thickness": 5,
+          "center": false, "rotation": [0, -90, 0], "position": [0, 0, 0]
+        }
+      ]
+    },
+    {
+      "type": "through_hole",
+      "diameter": 6, "depth": 5,
+      "position": [30, 10, 0]
+    },
+    {
+      "type": "through_hole",
+      "diameter": 6, "depth": 5,
+      "rotation": [0, -90, 0], "position": [0, 10, 30]
+    }
+  ]
+}
+ 
+[Example 2] Fillet box with mixed holes
+{
+  "operation": "difference",
+  "shapes": [
+    {
+      "type": "fillet_box",
+      "length": 80, "width": 50, "thickness": 8,
+      "fillet_r": 5, "center": false
+    },
+    {
+      "type": "through_hole",
+      "diameter": 6, "depth": 8,
+      "position": [20, 25, 0]
+    },
+    {
+      "type": "countersunk_hole",
+      "diameter": 6, "depth": 8,
+      "position": [40, 25, 0]
+    },
+    {
+      "type": "slot_hole",
+      "diameter": 6, "slot_length": 20, "depth": 8,
+      "direction": "x", "position": [60, 25, 0]
+    },
+    {
+      "type": "hex_nut_trap",
+      "diameter": 6, "plate_thickness": 8,
+      "trap_side": "bottom", "position": [20, 25, 0]
+    }
+  ]
+}
