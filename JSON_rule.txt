@@ -1,10 +1,10 @@
-CAD JSON Specification v0.3
- 
- 
+CAD JSON Specification v0.9
+
+
 ═══════════════════════════════════════
  SOLID SHAPES
 ═══════════════════════════════════════
- 
+
 plate:
 {
     "type": "plate",
@@ -15,7 +15,7 @@ plate:
     "position": [x, y, z],     // default: [0, 0, 0]
     "rotation": [rx, ry, rz]   // default: [0, 0, 0], degrees
 }
- 
+
 cylinder:
 {
     "type": "cylinder",
@@ -26,7 +26,54 @@ cylinder:
     "position": [x, y, z],
     "rotation": [rx, ry, rz]
 }
- 
+
+sphere:
+{
+    "type": "sphere",
+    "radius": number,
+    "fn": number,               // default: 100
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+
+hemisphere:
+{
+    "type": "hemisphere",
+    "radius": number,
+    "cut_ratio": number,        // fraction to keep from top (default: 0.5 = half sphere)
+                                // 0.333 = top 1/3, 0.667 = top 2/3
+    "fn": number,               // default: 100
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+// Flat face sits at z=0. Dome extends upward.
+// Use cut_ratio to control how much of the sphere is kept.
+
+cone:
+{
+    "type": "cone",
+    "base_radius": number,      // radius at bottom (z=0)
+    "height": number,
+    "top_radius": number,       // optional: radius at top (default: 0 = sharp tip)
+    "center": boolean,          // default: true
+    "fn": number,               // default: 100
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+// top_radius > 0 creates a truncated cone.
+
+torus:
+{
+    "type": "torus",
+    "major_radius": number,     // distance from torus center to tube center
+    "minor_radius": number,     // radius of the tube
+    "fn_major": number,         // default: 100
+    "fn_minor": number,         // default: 32
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+// Lies flat in the XY plane, centered at origin.
+
 hex_bolt:
 {
     "type": "hex_bolt",
@@ -39,7 +86,7 @@ hex_bolt:
     "rotation": [rx, ry, rz]
 }
 // Head sits below z=0. Shaft extends upward from z=0.
- 
+
 hex_nut:
 {
     "type": "hex_nut",
@@ -50,7 +97,7 @@ hex_nut:
     "position": [x, y, z],
     "rotation": [rx, ry, rz]
 }
- 
+
 washer:
 {
     "type": "washer",
@@ -61,7 +108,7 @@ washer:
     "position": [x, y, z],
     "rotation": [rx, ry, rz]
 }
- 
+
 chamfer_box:
 {
     "type": "chamfer_box",
@@ -73,7 +120,7 @@ chamfer_box:
     "position": [x, y, z],
     "rotation": [rx, ry, rz]
 }
- 
+
 fillet_box:
 {
     "type": "fillet_box",
@@ -86,12 +133,189 @@ fillet_box:
     "position": [x, y, z],
     "rotation": [rx, ry, rz]
 }
- 
- 
+
+
+bosl2_cuboid:  (BOSL2-powered box with edge rounding/chamfer)
+{
+    "type": "bosl2_cuboid",
+    "length": number,
+    "width": number,
+    "thickness": number,
+    "rounding": number,     // optional: fillet radius on ALL edges (mm)
+    "chamfer": number,      // optional: chamfer size on ALL edges (mm)
+    "center": boolean,      // default: true
+    "fn": number,           // default: 32
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+// Requires BOSL2 installed. rounding and chamfer are mutually exclusive.
+// Use instead of fillet_box when you need ALL edges (top/bottom/sides) rounded.
+
+
+═══════════════════════════════════════
+ GEAR SHAPES (requires BOSL2 gears.scad)
+═══════════════════════════════════════
+// Two gears mesh if they share the same circ_pitch and pressure_angle.
+// circ_pitch = distance between teeth centers along pitch circle (mm)
+// Common circ_pitch values: 3 (fine), 5 (medium), 8 (coarse), 10 (very coarse)
+
+spur_gear:
+{
+    "type": "spur_gear",
+    "teeth": integer,           // number of teeth
+    "circ_pitch": number,       // circular pitch (mm) — sets tooth size
+    "thickness": number,        // gear thickness (mm)
+    "shaft_d": number,          // optional: shaft/bore diameter (default: 0 = no bore)
+    "helical": number,          // optional: helical angle in degrees (default: 0 = straight)
+    "pressure_angle": number,   // optional: default 20
+    "fn": integer,              // optional: default 120
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+
+ring_gear:  (internal/annular gear)
+{
+    "type": "ring_gear",
+    "teeth": integer,
+    "circ_pitch": number,
+    "thickness": number,
+    "shaft_d": number,          // optional
+    "pressure_angle": number,   // optional: default 20
+    "fn": integer,              // optional: default 120
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+
+rack:  (linear gear that meshes with spur_gear)
+{
+    "type": "rack",
+    "circ_pitch": number,       // must match mating spur_gear
+    "length": number,           // rack length (mm)
+    "height": number,           // rack body height (mm)
+    "thickness": number,        // rack depth/width (mm)
+    "helical": number,          // optional: default 0
+    "pressure_angle": number,   // optional: default 20
+    "fn": integer,              // optional: default 120
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+
+bevel_gear:
+{
+    "type": "bevel_gear",
+    "teeth": integer,
+    "circ_pitch": number,
+    "face_width": number,       // width of toothed face (mm)
+    "pitch_angle": number,      // optional: pitch cone angle in degrees (default: 45 = miter gear)
+    "shaft_d": number,          // optional: default 0
+    "pressure_angle": number,   // optional: default 20
+    "fn": integer,              // optional: default 120
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+
+worm:  (mates with worm_gear)
+{
+    "type": "worm",
+    "circ_pitch": number,       // must match mating worm_gear
+    "d": number,                // pitch diameter of the worm (mm)
+    "length": number,           // worm length (mm)
+    "starts": integer,          // optional: number of thread starts (default: 1)
+    "pressure_angle": number,   // optional: default 20
+    "fn": integer,              // optional: default 72
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+
+worm_gear:  (mates with worm)
+{
+    "type": "worm_gear",
+    "teeth": integer,
+    "circ_pitch": number,       // must match mating worm
+    "worm_d": number,           // pitch diameter of the mating worm (mm)
+    "worm_starts": integer,     // optional: starts of mating worm (default: 1)
+    "shaft_d": number,          // optional: default 0
+    "pressure_angle": number,   // optional: default 20
+    "fn": integer,              // optional: default 120
+    "position": [x, y, z],
+    "rotation": [rx, ry, rz]
+}
+
+
+═══════════════════════════════════════
+ GEAR PAIR OPERATIONS
+ (always use these for meshing gears — never manually position individual gears)
+═══════════════════════════════════════
+// CRITICAL: When user asks for meshing/mating gears, ALWAYS use pair operations.
+// Never output individual spur_gear/worm/worm_gear/rack shapes in a union for mating.
+// Individual gear shapes are only for standalone display.
+// Center distance and phase rotation are computed automatically by gear_solver.
+
+// phase_mode options (applies to all pair operations):
+//   "visual"   — heuristic phase alignment (default, works for standard cases)
+//   "none"     — no phase correction
+// phase_override_* — manually set rotation in degrees (overrides phase_mode)
+
+worm_pair:
+{
+    "operation": "worm_pair",
+    "circ_pitch": number,           // circular pitch (mm)
+    "worm_d": number,               // worm pitch diameter (mm)
+    "worm_length": number,          // worm length (mm)
+    "starts": integer,              // optional: thread starts (default: 1)
+    "gear_teeth": integer,          // number of worm gear teeth
+    "shaft_d": number,              // optional: worm gear shaft bore (default: 0)
+    "pressure_angle": number,       // optional: default 20
+    "fn_worm": integer,             // optional: default 72
+    "fn_gear": integer,             // optional: default 120
+    "phase_mode": "visual"|"none",  // optional: default "visual"
+    "phase_override_gear": number   // optional: manual worm gear Z rotation (degrees)
+}
+// Worm lies along X axis (rotate [0,90,0]). Worm gear on Y axis.
+// Center distance computed by BOSL2 worm_dist() — always exact.
+// Phase: heuristic rotation applied to worm gear (180/gear_teeth degrees).
+
+spur_pair:
+{
+    "operation": "spur_pair",
+    "circ_pitch": number,
+    "teeth_1": integer,             // teeth on gear 1 (driver)
+    "teeth_2": integer,             // teeth on gear 2 (driven)
+    "thickness": number,            // gear thickness (mm)
+    "shaft_d_1": number,            // optional: gear 1 shaft bore (default: 0)
+    "shaft_d_2": number,            // optional: gear 2 shaft bore (default: 0)
+    "backlash": number,             // optional: extra center distance (default: 0)
+    "pressure_angle": number,       // optional: default 20
+    "fn": integer,                  // optional: default 120
+    "phase_mode": "visual"|"none",  // optional: default "visual"
+    "phase_override_2": number      // optional: manual gear 2 Z rotation (degrees)
+}
+// Gear 1 at origin. Gear 2 offset along X axis by center_distance.
+// Center distance exact: circ_pitch * (teeth_1 + teeth_2) / (2 * PI).
+// Phase: heuristic rotation applied to gear 2 (180/teeth_2 degrees).
+
+rack_pair:
+{
+    "operation": "rack_pair",
+    "circ_pitch": number,
+    "teeth": integer,               // pinion (spur gear) teeth
+    "thickness": number,            // gear and rack thickness (mm)
+    "rack_length": number,          // rack length (mm)
+    "rack_height": number,          // optional: rack body height (default: 10)
+    "shaft_d": number,              // optional: pinion shaft bore (default: 0)
+    "backlash": number,             // optional: extra clearance (default: 0)
+    "pressure_angle": number,       // optional: default 20
+    "fn": integer,                  // optional: default 120
+    "phase_override_pinion": number // optional: manual pinion Z rotation (degrees)
+}
+// Pinion at origin. Rack offset along Y axis automatically.
+// No phase rotation needed for rack_pair (BOSL2 default aligns correctly).
+
+
 ═══════════════════════════════════════
  HOLE SHAPES (always used as cut targets inside difference)
 ═══════════════════════════════════════
- 
+
 through_hole:
 {
     "type": "through_hole",
@@ -104,7 +328,7 @@ through_hole:
 }
 // Drilled slightly larger than bolt diameter per ISO 273.
 // EPSILON applied automatically for z-fighting prevention.
- 
+
 countersunk_hole:
 {
     "type": "countersunk_hole",
@@ -118,7 +342,7 @@ countersunk_hole:
 }
 // Cone opens upward so bolt head sits flush with top surface.
 // EPSILON applied automatically.
- 
+
 slot_hole:
 {
     "type": "slot_hole",
@@ -132,7 +356,7 @@ slot_hole:
 }
 // Elongated hole for positional adjustment.
 // EPSILON applied automatically.
- 
+
 hex_nut_trap:
 {
     "type": "hex_nut_trap",
@@ -148,35 +372,52 @@ hex_nut_trap:
 // Hexagonal pocket for nut press-fit + bolt through-hole in one operation.
 // Used in 3D-printed parts where threads cannot be printed.
 // EPSILON applied automatically.
- 
- 
+// IMPORTANT: hex_nut_trap already includes a bolt through-hole internally.
+//            Do NOT add a separate through_hole at the same position.
+// trap_side defaults:
+//   - L-bracket horizontal plate: use "top" (nut accessible from top surface)
+//   - L-bracket vertical plate:   use "bottom" (nut accessible from outer face)
+//   - standalone plate:            use "bottom" (default)
+
+
 ═══════════════════════════════════════
  OPERATIONS
 ═══════════════════════════════════════
- 
+
 union:
 {
     "operation": "union",
     "shapes": [...]
 }
- 
+
 difference:
 {
     "operation": "difference",
     "shapes": [base, cut1, cut2, ...]   // first shape is base; rest are subtracted
 }
- 
+
 intersection:
 {
     "operation": "intersection",
     "shapes": [...]
 }
- 
- 
+
+fillet_join:  (BOSL2-powered fillet between two shapes at junction)
+{
+    "operation": "fillet_join",
+    "fillet_r": number,     // fillet radius at junction (mm)
+    "base": { ...shape... },  // base shape (plate, fillet_box, bosl2_cuboid, etc.)
+    "join": { ...shape... }   // shape being joined onto base (cylinder, cone, hemisphere)
+}
+// Requires BOSL2 installed.
+// Best supported: cylinder/cone/hemisphere joined onto a flat plate.
+// The join shape's position should be on top of the base surface.
+
+
 ═══════════════════════════════════════
  RULES
 ═══════════════════════════════════════
- 
+
 1. General Rules
 - Use millimeters for all dimensions.
 - Output JSON only. Do not include any explanation or comments.
@@ -189,7 +430,7 @@ intersection:
 - Default for "rotation": [0, 0, 0].
 - Transform order: create shape at local origin -> apply rotation -> apply position.
 - Use lowercase true/false in JSON.
- 
+
 2. Coordinate System
 - X: length direction.
 - Y: width direction.
@@ -198,12 +439,12 @@ intersection:
 - For center=false, the origin corner is at [0, 0, 0].
 - Horizontal plate extends in +X direction.
 - Vertical plate extends in +Z direction.
- 
+
 3. Plate Rules
 - length  -> X direction
 - width   -> Y direction
 - thickness -> Z direction
- 
+
 4. Hole Rules
 - Hole position is measured from the origin corner of the plate (center=false).
 - through_hole, countersunk_hole, slot_hole, and hex_nut_trap must always be
@@ -212,35 +453,77 @@ intersection:
   Do not add extra offsets in JSON.
 - Horizontal plate holes: position = [x_from_corner, y_from_corner, 0]
 - Vertical plate holes: rotation [0, -90, 0], position = [0, y_from_corner, z_from_corner]
- 
+
 5. ISO Standard Auto-Apply Rules
 - hex_bolt, hex_nut, washer, through_hole, countersunk_hole, slot_hole, hex_nut_trap
   automatically apply ISO standard dimensions when only "diameter" is specified.
 - Supported sizes: M3, M4, M5, M6, M8, M10, M12, M16, M20.
 - Non-standard dimensions can be set via optional parameters.
- 
-6. 3D Printing Rules
+
+6. Gear Rules
+- All gear shapes require BOSL2 installed (include <BOSL2/gears.scad> auto-added).
+- Meshing gears MUST share the same circ_pitch and pressure_angle.
+- shaft_d creates a bore hole through the center of the gear.
+- helical != 0 creates a helical gear; mating helical gears need opposite helix angles.
+- For 3D printing: circ_pitch >= 5 recommended for printable tooth geometry.
+- gear_ratio = teeth_driven / teeth_driver (for spur gears).
+
+- CRITICAL: When user asks for meshing/mating gears, ALWAYS use pair operations:
+    worm + worm_gear → "worm_pair"
+    two spur gears   → "spur_pair"
+    spur gear + rack → "rack_pair"
+  NEVER put individual gear shapes (spur_gear, worm, worm_gear, rack) inside
+  a union for mating purposes. The validator will reject this.
+
+- phase_mode allowed values: "visual" | "none" (any other value is rejected by validator)
+    "none"   — no phase correction (default for spur_pair and rack_pair)
+    "visual" — heuristic phase correction (default for worm_pair only)
+  phase_override values are numbers in degrees, can be negative.
+- Default phase_mode by operation:
+    spur_pair  → "none" (BOSL2 spur_gear() auto-aligns, no correction needed)
+    rack_pair  → "none" (BOSL2 rack() auto-aligns with spur_gear())
+    worm_pair  → "visual" (180/gear_teeth correction required for BOSL2)
+- Use phase_override_* only when user explicitly reports visual misalignment.
+  (Note: automatic misalignment correction requires multi-turn conversation support,
+   which is not yet implemented.)
+
+- backlash adds extra center distance for real-world assembly clearance.
+  Typical values: 0.1–0.3mm for 3D printed gears.
+
+// Center distance and phase rotation are handled automatically by gear_solver.
+// Do not manually calculate or set positions for meshing gear pairs.
+
+7. BOSL2 Rules
+- bosl2_cuboid and fillet_join require BOSL2 installed in OpenSCAD library folder.
+- bosl2_cuboid: use when ALL edges (top, bottom, sides) need rounding. 
+  For vertical edges only, use fillet_box instead (no BOSL2 needed).
+- fillet_join: use when two solid shapes meet and the junction needs a fillet.
+  Supported base types: plate, fillet_box, chamfer_box, bosl2_cuboid.
+  Supported join types: cylinder, cone, hemisphere.
+- Do not use hole types (through_hole, etc.) as the join shape in fillet_join.
+
+7. 3D Printing Rules
 - Do not generate threads. FDM printers cannot reliably print threads.
 - Bolts and nuts are purchased separately and assembled after printing.
 - Use hex_nut_trap to fix a nut inside a printed part.
 - Use countersunk_hole to recess a bolt head flush with the surface.
 - Use slot_hole when positional adjustment is needed.
- 
-7. L-Bracket Rules
+
+8. L-Bracket Rules
 - L-bracket is viewed from the XZ plane.
 - Both plates share the same length, width, and thickness unless specified.
 - Vertical plate is created by rotating a plate [0, -90, 0] around the Y axis.
 - The shared inside corner is at [0, 0, 0].
- 
-8. Symmetry Rules
+
+9. Symmetry Rules
 - For L-brackets, default symmetry is line symmetry about y = width/2.
 - Line symmetry about y = width/2: y_new = width - y_old (x and z unchanged).
- 
- 
+
+
 ═══════════════════════════════════════
  EXAMPLES
 ═══════════════════════════════════════
- 
+
 [Example 1] L-bracket with through holes
 {
   "operation": "difference",
@@ -272,7 +555,7 @@ intersection:
     }
   ]
 }
- 
+
 [Example 2] Fillet box with mixed holes
 {
   "operation": "difference",
@@ -303,4 +586,133 @@ intersection:
       "trap_side": "bottom", "position": [20, 25, 0]
     }
   ]
+}
+
+[Example 3] Square plate with hemisphere on top
+{
+  "operation": "union",
+  "shapes": [
+    {
+      "type": "fillet_box",
+      "length": 200, "width": 200, "thickness": 10,
+      "fillet_r": 5, "center": true
+    },
+    {
+      "type": "hemisphere",
+      "radius": 80,
+      "cut_ratio": 0.5,
+      "position": [0, 0, 10]
+    }
+  ]
+}
+
+[Example 4] Torus (donut shape)
+{
+  "type": "torus",
+  "major_radius": 30,
+  "minor_radius": 10
+}
+
+[Example 5] Truncated cone
+{
+  "type": "cone",
+  "base_radius": 40,
+  "height": 60,
+  "top_radius": 20,
+  "center": false
+}
+
+[Example 6] Sphere with top 1/3 kept (cut_ratio=0.333)
+{
+  "type": "hemisphere",
+  "radius": 80,
+  "cut_ratio": 0.333
+}
+
+[Example 7] bosl2_cuboid with full edge rounding
+{
+  "type": "bosl2_cuboid",
+  "length": 80, "width": 50, "thickness": 20,
+  "rounding": 5, "center": false
+}
+
+[Example 9] Spur gear with shaft bore
+{
+  "type": "spur_gear",
+  "teeth": 20,
+  "circ_pitch": 5,
+  "thickness": 8,
+  "shaft_d": 6
+}
+
+[Example 10] Meshing spur gear pair
+{
+  "operation": "spur_pair",
+  "circ_pitch": 5,
+  "teeth_1": 12,
+  "teeth_2": 24,
+  "thickness": 8,
+  "shaft_d_1": 6,
+  "shaft_d_2": 8
+}
+
+[Example 11] Worm and worm gear pair
+{
+  "operation": "worm_pair",
+  "circ_pitch": 5,
+  "worm_d": 20,
+  "worm_length": 40,
+  "starts": 2,
+  "gear_teeth": 30,
+  "shaft_d": 8
+}
+
+[Example 12] Rack and pinion
+{
+  "operation": "rack_pair",
+  "circ_pitch": 5,
+  "teeth": 16,
+  "thickness": 8,
+  "rack_length": 100,
+  "shaft_d": 6
+}
+
+[Example 13] Spur pair with backlash (for 3D printing clearance)
+{
+  "operation": "spur_pair",
+  "circ_pitch": 5,
+  "teeth_1": 16,
+  "teeth_2": 32,
+  "thickness": 10,
+  "backlash": 0.2,
+  "shaft_d_1": 6,
+  "shaft_d_2": 8
+}
+
+[Example 14] Worm pair with manual phase override
+{
+  "operation": "worm_pair",
+  "circ_pitch": 5,
+  "worm_d": 20,
+  "worm_length": 40,
+  "starts": 1,
+  "gear_teeth": 40,
+  "shaft_d": 8,
+  "phase_override_gear": 4.5
+}
+
+[Example 8] Cylinder on plate with fillet at junction
+{
+  "operation": "fillet_join",
+  "fillet_r": 4,
+  "base": {
+    "type": "plate",
+    "length": 100, "width": 100, "thickness": 8,
+    "center": false
+  },
+  "join": {
+    "type": "cylinder",
+    "radius": 15, "height": 40,
+    "position": [50, 50, 8]
+  }
 }
