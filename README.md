@@ -3,7 +3,7 @@ version.1
 
 # AI-Assisted Parametric CAD Generation
 
-A Python-based system that converts natural-language engineering descriptions into parametric 3D CAD models using an LLM API, a structured JSON representation, and OpenSCAD.
+LLM-assisted parametric CAD generation using Python, structured JSON, geometric validation, and OpenSCAD.
 
 **Developer:** Dogyun Yoo  
 **Started:** June 2026  
