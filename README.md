@@ -18,7 +18,6 @@ The project focuses on combining LLM-assisted generation with rule-based geometr
 
 ## 2. System Architecture
 Natural Language Input -> Input Processing (Unit Conversion / Gear Hints) -> Claude API -> Structured CAD JSON -> JSON Validator (access pass or fail)
-
 -> CAD Geometry Builder -> OpenSCAD (.scad) & STL Export (.stl)
 
 ## 3. Key Features
