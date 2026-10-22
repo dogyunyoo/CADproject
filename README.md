@@ -59,7 +59,40 @@ Some gear alignment configurations use heuristics or require manual adjustments.
 
 ## Supported Mechanical Components
 
-## 6. Installation & Requirements
+## 4. Example Outputs
+The following examples demonstrate different CAD generation and mechanical modeling capabilities.
+
+### Example 1: L-Bracket
+
+![Generated L-Bracket](examples/l_bracket.png)
+
+A parametric mounting bracket demonstrating basic geometric operations, hole placement, and Boolean subtraction.
+
+### Example 2: Spur Gear Pair
+
+![Generated Spur Gear Pair](examples/spur_gear_pair.png)
+
+A two-gear assembly demonstrating parametric gear geometry and center-distance calculations.
+
+### Example 3: Worm Gear Assembly
+
+![Generated Worm Gear Assembly](examples/worm_gear_pair.png)
+
+A worm gear arrangement demonstrating geometric positioning, axis alignment, and rotation calculations.
+
+### Example 4: Rack and Pinion
+
+![Generated Rack and Pinion](examples/rack_pinion.png)
+
+A rack-and-pinion configuration demonstrating parametric gear components and their spatial arrangement.
+
+### Example 5: Mechanical Plate
+
+![Generated Mechanical Plate](examples/mechanical_plate.png)
+
+A mechanical plate demonstrating features such as mounting holes, countersinks, and fastening geometry.
+
+## 5. Installation & Requirements
 ### Requirements
 
 - Python
@@ -92,7 +125,8 @@ C:\Program Files\OpenSCAD\openscad.exe
 ```
 
 Users with a different installation path must update `OPENSCAD_PATH` in `ask_ai.py`.
-## Usage
+
+## 6. Usage
 
 ## Validation & Error Handling
 ## Limitations
