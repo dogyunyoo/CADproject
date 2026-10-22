@@ -64,31 +64,31 @@ The following examples demonstrate different CAD generation and mechanical model
 
 ### Example 1: L-Bracket
 
-![Generated L-Bracket](Example 1.png)
+![Generated L-Bracket](Example%201.png)
 
 A parametric mounting bracket demonstrating basic geometric operations, hole placement, and Boolean subtraction.
 
 ### Example 2: Spur Gear Pair
 
-![Generated Spur Gear Pair]Example 2.png)
+![Generated Spur Gear Pair](Example%202.png)
 
 A two-gear assembly demonstrating parametric gear geometry and center-distance calculations.
 
 ### Example 3: Worm Gear Assembly
 
-![Generated Worm Gear Assembly](Example 3.png)
+![Generated Worm Gear Assembly](Example%203.png)
 
 A worm gear arrangement demonstrating geometric positioning, axis alignment, and rotation calculations.
 
 ### Example 4: Rack and Pinion
 
-![Generated Rack and Pinion](Example 4.png)
+![Generated Rack and Pinion](Example%204.png)
 
 A rack-and-pinion configuration demonstrating parametric gear components and their spatial arrangement.
 
 ### Example 5: Mechanical Plate
 
-![Generated Mechanical Plate](Example 5.png)
+![Generated Mechanical Plate](Example%205.png)
 
 A mechanical plate demonstrating features such as mounting holes, countersinks, and fastening geometry.
 
