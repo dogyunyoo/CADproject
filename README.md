@@ -127,7 +127,60 @@ C:\Program Files\OpenSCAD\openscad.exe
 Users with a different installation path must update `OPENSCAD_PATH` in `ask_ai.py`.
 
 ## 6. Usage
+Run the interactive CAD generator:
 
-## Validation & Error Handling
-## Limitations
-## Future Development
+```bash
+python ask_ai.py
+```
+
+Enter a natural-language description of the desired component.
+
+The system attempts to generate and validate a CAD JSON specification, writes `model.json`, and generates `part.scad`.
+
+If OpenSCAD is found at the configured executable path, the script opens the model and launches STL generation in the background.
+
+**Note:** STL export may continue after the command returns. Check that `part.stl` has been generated successfully before using it.
+
+## 7. Validation & Error Handling
+LLM-generated CAD descriptions may contain invalid JSON, missing parameters, or unsupported structures.
+
+To reduce these failures, the system:
+
+1. Parses the generated JSON.
+2. Checks its structure using `validator.py`.
+3. Returns validation errors to the LLM.
+4. Retries generation up to a configured limit.
+5. Passes validated output to the CAD builder.
+
+This approach aims to improve the structural reliability of LLM-generated CAD specifications.
+
+## 8. Limitations
+- The system relies on an external LLM API and internet connectivity.
+- Geometric correctness is not guaranteed by JSON validation alone.
+- Some gear configurations use heuristic alignment.
+- OpenSCAD currently uses a Windows-specific executable path.
+- STL export runs asynchronously without a completed-export verification step.
+- Physical manufacturability and mechanical performance are not automatically verified.
+
+## 9. Future Development
+Planned improvements include:
+
+- Automated geometric validation of generated CAD models
+- More robust gear meshing and assembly verification
+- Cross-platform OpenSCAD execution
+- Improved automated testing and error recovery
+- Expansion of parametric mechanical components
+- Benchmarking CAD generation accuracy and reliability
+
+## 10. Technologies
+**Language:** Python  
+**LLM:** Anthropic Claude API  
+**CAD Engine:** OpenSCAD  
+**Geometry Library:** BOSL2  
+**Data Representation:** JSON
+
+## 11. Project Background
+This project was initiated in June 2026 as an independent engineering software development project.
+
+Its long-term objective is to investigate how AI-assisted specification generation, parametric geometry, and rule-based engineering computations can support more automated mechanical design workflows.
+
