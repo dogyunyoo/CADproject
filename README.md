@@ -64,7 +64,7 @@ The following examples demonstrate different CAD generation and mechanical model
 
 ### Example 1: L-Bracket
 
-![Generated L-Bracket](Example%201.png)
+![Generated L-Bracket](Example%201_Lbracket.png)
 
 A parametric mounting bracket demonstrating basic geometric operations, hole placement, and Boolean subtraction.
 
