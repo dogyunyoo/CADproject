@@ -56,10 +56,43 @@ The dedicated `gear_solver.py` module provides calculations for mechanical gear 
 - Unit conversions
 
 Some gear alignment configurations use heuristics or require manual adjustments.
+
 ## Supported Mechanical Components
-## Installation & Requirements
+
+## 6. Installation & Requirements
+### Requirements
+
+- Python
+- OpenSCAD
+- BOSL2 for supported gear-related functionality
+- Anthropic API key
+
+Install the required Python packages:
+
+```bash
+pip install anthropic python-dotenv
+```
+
+Install OpenSCAD and configure BOSL2 according to its documentation.
+
+### API Configuration
+
+Create a `.env` file in the project directory:
+
+```env
+ANTHROPIC_API_KEY=your_api_key_here
+```
+
+**Never commit your actual API key to GitHub.**
+
+The current implementation expects OpenSCAD at:
+
+```text
+C:\Program Files\OpenSCAD\openscad.exe
+```
+
+Users with a different installation path must update `OPENSCAD_PATH` in `ask_ai.py`.
 ## Usage
-## Example Outputs
 
 ## Validation & Error Handling
 ## Limitations
